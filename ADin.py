@@ -19,9 +19,9 @@ input_file = r"\source\main.mp4"
 ad1_file = r"\source\1.mp4"
 ad2_file = r"\source\2.mp4"
 
-output_main = r"\transform\output_main.webm"
-output_ad1 = r"\transform\output_ad1.webm"
-output_ad2 = r"\transform\output_ad2.webm"
+# output_main = r"\transform\output_main.webm"
+# output_ad1 = r"\transform\output_ad1.webm"
+# output_ad2 = r"\transform\output_ad2.webm"
 
 out_main = r"\transform\output_main_file"
 out_ad1 = r"\transform\output_ad1_file"
@@ -82,12 +82,6 @@ def hls_enc():
     ad2_hls.encryption(save_to, url)
     ad2_hls.auto_generate_representations()
     ad2_hls.output(root + '/hls_ad2.m3u8')
-
-
-# def create_hls_playlist():
-#     command = '''ffmpeg -y -i 2.mp4 -hls_time 5 -hls_key_info_file enc.keyinfo.txt -hls_playlist_type vod -hls_segment_filename "v%v/segment%d.ts" v%v/index.m3u8'''
-#     subprocess.run(command)
-#     atexit.register(print, "Hls playlist creation complete!")
 
 
 
