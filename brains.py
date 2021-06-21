@@ -20,8 +20,8 @@ def main_reader():
     for i in range(len(main_extinf_list)):
         text = re.sub("[^\d\.]", "", main_extinf_list[i])
         extinf_time_list.append(text)
-    main_file.close()
-    return main, main_file
+    # main_file.close()
+    return main, main_file, extinf_time_list, main_extinf_list
 
 
 #===========================   STEP:2
@@ -31,7 +31,7 @@ def main_reader():
 def ext_splitter():
 #This will get the EXTINF tags and store it in a list
 
-    main, main_file = main_reader()
+    main, main_file, extinf_time_list, main_ext_inf = main_reader()
     string1 = '#EXTINF'
     string2 = 'output_main_file'
     # setting flag and index to 0
@@ -46,31 +46,28 @@ def ext_splitter():
 
         # checking string is present in line or not
         if string1 in line:
-            #         print(string1, 'Found In Line', index)
             ext_main_list.append(main[index - 1])
 
         if string2 in line:
-            #         print(string2, 'Found In Line', index)
             ext_main_list.append(main[index - 1])
 
     # closing text file
     main_file.close()
-
 #This will get the residual hashes apart from the EXTINF tags
 
-    res = list(set(main)^set(ext_main_list))
-    res[0], res[2] = res[2], res[0]
-    return ext_main_list, res
+    return ext_main_list
 
 #This function will store the cue points in seconds format and create a cue list for it
 def cue_inputs():
-    cue_1 = float(input('Enter the time in seconds where you want to insert the ad: '))
-    cue_2_1 = float(input('Enter the time in seconds where you want to insert the ad: '))
-    cue_2_2 = float(input('Enter the time in seconds where you want to insert the ad: '))
+    cue_1 = 120
+        # float(input('Enter the time in seconds where you want to insert the ad: '))
+    cue_2_1 = 180
+        # float(input('Enter the time in seconds where you want to insert the ad: '))
+    cue_2_2 = 240
+        # float(input('Enter the time in seconds where you want to insert the ad: '))
 
     cue_list = [cue_1, cue_2_1, cue_2_2]
     return cue_list
-
 
 
 #===========================   STEP:3
@@ -120,52 +117,48 @@ def ad2_ext():
 #to the input time given
 
 def ad1_insert():
-    main_extinf_list, extinf_time_list = main_reader()
+    main_extinf_list, extinf_time_list, main, main_file = main_reader()
     ad1_list = ad1_ext()
     cue_list = cue_inputs()
     ext_main_list = ext_splitter()
 
+
     total = 0
     count = 0
-    for ele in range(0, len(extinf_time_list)):
+    for ele in range(0, len(list(extinf_time_list))):
         count += 1
         total = total + float(extinf_time_list[ele])
-        print(total)
         if total >= cue_list[0]:
             break
 
     for i in range(len(ad1_list)):
-        ext_main_list.insert((count * 2) + i, ad1_list[i])
-        # print(extinf_time_list[0])
-    for i in ext_main_list:
-        print(i)
-
+        list(ext_main_list).insert((count * 2) + i, ad1_list[i])
+    print("inserted ad1", ext_main_list)
 
 def ad2_insert():
-    main_extinf_list, extinf_time_list = main_reader()
+    main_extinf_list, extinf_time_list, main, main_file = main_reader()
     ad2_list = ad2_ext()
     cue_list = cue_inputs()
     ext_main_list = ext_splitter()
 
     total = 0
     count = 0
-    for ele in range(0, len(extinf_time_list)):
+    for ele in range(0, len(list(extinf_time_list))):
         count += 1
         total = total + float(extinf_time_list[ele])
-        print(total)
         if total >= float(cue_list[1]):
             break
 
     for i in range(len(ad2_list)):
-        ext_main_list.insert((count * 2) + i + 4, ad2_list[i])
-        # print(extinf_time_list[0])
+        list(ext_main_list).insert((count * 2) + i + 4, ad2_list[i])
 
         if total >= float(cue_list[2]):
             break
 
     for i in range(len(ad2_list)):
-        ext_main_list.insert((count * 2) + i + 6, ad2_list[i])
-        # print(extinf_time_list[0])
+        list(ext_main_list).insert((count * 2) + i + 6, ad2_list[i])
+
+    print("inserted ad1", ext_main_list)
 
 
 #===========================   STEP:5
@@ -173,35 +166,48 @@ def ad2_insert():
 #This functions will stich the normal ext tags with the AD and MAIN EXTINF tags
 
 def create_manifest():
-    ext_main_list, res = ext_splitter()
+    ext_main_list = ext_splitter()
+    main_file = open(r'C:\Users\admin\PycharmProjects\test2\transform\output_main_file_480p.m3u8', "r")
+    main = main_file.readlines()
 
-    count = 0
-    for i in range(len(res) - 1):
-        ext_main_list.insert((count), res[i])
-        count += 1
+    new_manifest = []
 
-    for i in range(len(ext_main_list)):
-        res.insert(i + 5, ext_main_list[i - 1])
 
-    with open('last_manifest.m3u8', 'w') as file_handler:
-        for item in res:
+    for i in ext_main_list:
+        new_manifest.append(i)
+    new_manifest.append(main[-1])
+
+    with open(r"C:\Users\admin\PycharmProjects\test2\transform\last_manifest.m3u8", 'w') as file_handler:
+        file_handler.write(main[0])
+        file_handler.write(main[1])
+        file_handler.write(main[2])
+        file_handler.write(main[3])
+        file_handler.write(main[4])
+
+        for item in new_manifest:
             file_handler.write("{}".format(item))
 
-
 def convert_mp4():
-    input_file = r'C:\Users\admin\PycharmProjects\test2\last_manifest.m3u8'
-    out_file = r'C:\Users\admin\PycharmProjects\test2\manifest_video.mp4'
+    input_file = r'C:\Users\admin\PycharmProjects\test2\transform\last_manifest.m3u8'
+    out_file = r'C:\Users\admin\PycharmProjects\test2\transform\manifest_video.mp4'
     command = 'ffmpeg -i ' + input_file + ' ' + out_file
-    print(command)
     subprocess.run(command)
 
+if __name__ == "__main__":
 
-main_reader()
-ext_splitter()
-cue_inputs()
-ad1_ext()
-ad2_ext()
-ad1_insert()
-ad2_insert()
-create_manifest()
-convert_mp4()
+    main_reader()
+    print("main_reader" + " executed")
+    ext_splitter()
+    print("ext_splitter" + " executed")
+    ad1_ext()
+    print("ad1_ext" + " executed")
+    ad2_ext()
+    print("ad2_ext" + " executed")
+    ad1_insert()
+    print("ad1_insert" + " executed")
+    ad2_insert()
+    print("ad2_insert" + " executed")
+    create_manifest()
+    print("create_manifest" + " executed")
+    convert_mp4()
+    print("convert_mp4" + " executed")
