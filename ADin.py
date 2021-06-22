@@ -3,16 +3,24 @@ from ffmpeg_streaming import Formats, Bitrate, Representation, Size
 import urllib3, hashlib, time, json, base64
 import subprocess
 import atexit
-import ffmpeg
-import os
-import sys
-import scte
+from pathlib import Path
+
+home = str(Path.home())
+
+#change the location of file root
+root = home + "\Desktop\AdInsertion"
+Path(root).mkdir(parents=True, exist_ok=True)
+
+path_source = home + "\Desktop\AdInsertion\source"
+print(path_source)
+Path(path_source).mkdir(parents=True, exist_ok=True)
+
+path_transform= home + "\Desktop\AdInsertion\converted"
+print(path_transform)
+Path(path_transform).mkdir(parents=True, exist_ok=True)
 
 #-------------------------------------------------global values
 
-#change the location of file root
-
-root = r"C:\Users\admin\PycharmProjects\test2"
 
 #change the name of video files here
 input_file = r"\source\main.mp4"
@@ -23,9 +31,9 @@ ad2_file = r"\source\2.mp4"
 # output_ad1 = r"\transform\output_ad1.webm"
 # output_ad2 = r"\transform\output_ad2.webm"
 
-out_main = r"\transform\output_main_file"
-out_ad1 = r"\transform\output_ad1_file"
-out_ad2 = r"\transform\output_ad2_file"
+out_main = r"\converted\output_main_file"
+out_ad1 = r"\converted\output_ad1_file"
+out_ad2 = r"\converted\output_ad2_file"
 
 video_main = ffmpeg_streaming.input(root+input_file)
 video_ad1 = ffmpeg_streaming.input(root+ad1_file)

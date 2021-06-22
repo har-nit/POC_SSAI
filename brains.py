@@ -1,13 +1,22 @@
 import re
 import subprocess
+from pathlib import Path
 
+
+home = str(Path.home())
+
+#change the location of file root
+root = home + "\Desktop\AdInsertion"
+root_manifest = r"\converted\output_main_file_480p.m3u8"
+ad1_manifest = r"\converted\output_ad1_file_480p.m3u8"
+ad2_manifest = r"\converted\output_ad2_file_480p.m3u8"
 
 # ===========================   STEP:1
 #### Reading the main file for EXTINF reading ####
 # This function will read the main .m3u8 file and split the data into tags basis and it's time for cue point searching
 
 def main_reader():
-    main_file = open(r'C:\Users\admin\PycharmProjects\test2\transform\output_main_file_480p.m3u8', "r")
+    main_file = open(root+root_manifest, "r")
     main = main_file.readlines()
 
     main_extinf_list = []
@@ -67,7 +76,7 @@ def main_reader():
     #### Fetching EXTINF from AD files ####
     # This function will store the EXTINF tags for ad1 and ad2 so that it can be added to main file based on cue points
 
-    ad1 = open(r'C:\Users\admin\PycharmProjects\test2\transform\output_ad1_file_480p.m3u8', 'r')
+    ad1 = open(root+ad1_manifest, 'r')
     count = 0
     ad1_list = []
     while True:
@@ -84,7 +93,7 @@ def main_reader():
     ad1.close()
     print("ad1_list", ad1_list)
 
-    ad2 = open(r'C:\Users\admin\PycharmProjects\test2\transform\output_ad2_file_480p.m3u8', 'r')
+    ad2 = open(root+ad2_manifest, 'r')
     count = 0
     ad2_list = []
     while True:
@@ -154,7 +163,7 @@ def main_reader():
         new_manifest.append(i)
     new_manifest.append(main[-1])
 
-    with open(r"C:\Users\admin\PycharmProjects\test2\transform\last_manifest.m3u8", 'w') as file_handler:
+    with open(root+"\converted\last_manifest.m3u8", 'w') as file_handler:
         file_handler.write(main[0])
         file_handler.write(main[1])
         file_handler.write(main[2])
@@ -165,8 +174,8 @@ def main_reader():
             file_handler.write("{}".format(item))
 
 
-    input_file = r'C:\Users\admin\PycharmProjects\test2\transform\last_manifest.m3u8'
-    out_file = r'C:\Users\admin\PycharmProjects\test2\transform\manifest_video.mp4'
+    input_file = root+r"\converted\last_manifest.m3u8"
+    out_file = root+r"\converted\manifest_video.mp4"
     command = 'ffmpeg -i ' + input_file + ' ' + out_file
     subprocess.run(command)
 
